@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Drive</title>
+    <link href="bootstrap.min.css" rel="stylesheet"/>
+    <script src="react.development.js"></script>
+    <script src="react-dom.development.js"></script>
+    <script src="babel.min.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const { useState } = React;
+
+      function App() {
+        const [files, setFiles] = useState([]);
+        const [showModal, setShowModal] = useState(false);
+        const [fileName, setFileName] = useState("");
+        const [editingIndex, setEditingIndex] = useState(null);
+
+        const addFile = () => {
+          setFileName("");
+          setEditingIndex(null);
+          setShowModal(true);
+        };
+
+        const saveFile = () => {
+          if (!fileName.trim()) return;
+
+          if (editingIndex !== null) {
+            const updated = [...files];
+            updated[editingIndex] = { name: fileName };
+            setFiles(updated);
+          } else {
+            setFiles([...files, { name: fileName }]);
+          }
+
+          setShowModal(false);
+          setFileName("");
+          setEditingIndex(null);
+        };
+
+        const editFile = (index) => {
+          setEditingIndex(index);
+          setFileName(files[index].name);
+          setShowModal(true);
+        };
+
+        const deleteFile = (index) => {
+          const updated = files.filter((_, i) => i !== index);
+          setFiles(updated);
+        };
+
+        return (
+          <div className="container-fluid d-flex" style={{ height: "100vh" }}>
+            <div className="sidebar bg-light p-3" style={{ width: "250px", borderRight: "1px solid #ddd", height: "100vh" }}>
+              <h1 className="h5">Drive</h1>
+              <button onClick={addFile} className="btn btn-primary w-100 mb-3">+ Baru</button>
+              <nav>
+                <div className="mb-2">Beranda</div>
+                <div className="mb-2">Drive Saya</div>
+                <div className="mb-2">Dibagikan</div>
+                <div className="mb-2">Terbaru</div>
+              </nav>
+            </div>
+            <div className="main flex-grow-1 p-3">
+              <h2 className="h4">File Saya</h2>
+              {files.map((file, index) => (
+                <div className="d-flex justify-content-between align-items-center p-2 mb-2 bg-white border" key={index}>
+                  <span>{file.name}</span>
+                  <div>
+                    <button onClick={() => editFile(index)} className="btn btn-warning btn-sm me-2">Edit</button>
+                    <button onClick={() => deleteFile(index)} className="btn btn-danger btn-sm">Hapus</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {showModal && (
+              <div className="modal show" style={{ display: "block", backgroundColor: "rgba(0,0,0,0.3)" }}>
+                <div className="modal-dialog">
+                  <div className="modal-content">
+                    <div className="modal-header">
+                      <h5 className="modal-title">{editingIndex !== null ? "Edit File" : "File Baru"}</h5>
+                      <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
+                    </div>
+                    <div className="modal-body">
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={fileName}
+                        onChange={(e) => setFileName(e.target.value)}
+                        placeholder="Nama file"
+                      />
+                    </div>
+                    <div className="modal-footer">
+                      <button onClick={saveFile} className="btn btn-primary">
+                        {editingIndex !== null ? "Simpan" : "Buat"}
+                      </button>
+                      <button onClick={() => setShowModal(false)} className="btn btn-secondary">Batal</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+    </script>
+  </body>
+</html>
